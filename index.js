@@ -1,27 +1,33 @@
+import config from "./utils/config.js"
 import express from "express"
 import cors from "cors"
-import morgan from "morgan"
-
 const app = express()
+import blogsRouter from "./controllers/controllers.js"
+import middleware from "./utils/middleware.js"
+import logger from "./utils/logger.js"
+import mongoose from "mongoose"
 
+mongoose.set("strictQuery", false)
+logger.info("connecting to mongoDB")
+
+mongoose
+  .connect(config.MONGODB_URI)
+  .then(() => {
+    logger.info("connected to MongoDB")
+  })
+  .catch((error) => {
+    logger.error("error connecting to MongoDB:", error.message)
+  })
 app.use(cors())
-app.use(morgan("tiny"))
+app.use(express.static("dist"))
+app.use(express.json())
+app.use(middleware.requestLogger)
 
-app.get("/api/blogs", (request, response) => {
-  Blog.find({}).then((blogs) => {
-    response.json(blogs)
-  })
-})
+app.use("/api/blogs", blogsRouter)
 
-app.post("/api/blogs", (request, response) => {
-  const blog = new Blog(request.body)
+app.use(middleware.unknownEndpoint)
+app.use(middleware.errorHandler)
 
-  blog.save().then((result) => {
-    response.status(201).json(result)
-  })
-})
-
-const PORT = 3003
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
+app.listen(config.PORT, () => {
+  logger.info(`Server running on port ${config.PORT}`)
 })
