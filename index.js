@@ -1,5 +1,6 @@
 import config from "./utils/config.js"
 import express from "express"
+import "express-async-errors"
 import cors from "cors"
 const app = express()
 import blogsRouter from "./controllers/controllers.js"
@@ -12,8 +13,10 @@ logger.info("connecting to mongoDB")
 
 mongoose
   .connect(config.MONGODB_URI)
-  .then(() => {
-    logger.info("connected to MongoDB")
+  .then((e) => {
+    logger.info(
+      `connected to MongoDB, data base: ${mongoose.connection.db.databaseName}`
+    )
   })
   .catch((error) => {
     logger.error("error connecting to MongoDB:", error.message)
@@ -31,3 +34,5 @@ app.use(middleware.errorHandler)
 app.listen(config.PORT, () => {
   logger.info(`Server running on port ${config.PORT}`)
 })
+
+export default app
