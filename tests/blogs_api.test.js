@@ -85,6 +85,36 @@ test("Blog has not url and title properties", async () => {
   assert.strictEqual(result.status, 400)
 })
 
+test("Blog has been deleted correctly", async () => {
+  const blogList = await api
+    .get("/api/blogs")
+    .expect(200)
+    .expect("Content-Type", /application\/json/)
+
+  const result = await api
+    .delete(`/api/blogs/${blogList.body[0].id}`)
+    .expect(204)
+
+  assert.strictEqual(result.status, 204)
+})
+
+test("A blog is updated correctly", async () => {
+  const list = await api
+    .get("/api/blogs")
+    .expect(200)
+    .expect("Content-Type", /application\/json/)
+
+  list.body[0].likes = 5
+
+  const result = await api
+    .put(`/api/blogs/${list.body[0].id}`)
+    .send(list.body[0])
+    .expect(200)
+    .expect("Content-Type", /application\/json/)
+
+  assert.strictEqual(list.body[0].likes, result.body.likes)
+})
+
 after(async () => {
   await mongoose.connection.close()
   logger.info("Database disconeccted")

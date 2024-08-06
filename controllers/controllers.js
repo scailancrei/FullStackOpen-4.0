@@ -19,8 +19,29 @@ blogsRouter.post("/", async (req, res) => {
   const blog = new Blog(req.body)
 
   const result = await blog.save()
-  console.log(result)
+
   res.status(201).json(blog)
+})
+
+blogsRouter.delete("/:id", async (req, res) => {
+  const { id } = req.params
+
+  const result = await Blog.findByIdAndDelete(id)
+
+  res.status(204).json(result)
+})
+
+blogsRouter.put("/:id", async (req, res) => {
+  const { id } = req.params
+  const likes = req.body.likes
+
+  const result = await Blog.findByIdAndUpdate(
+    id,
+    { likes: likes },
+    { new: true }
+  )
+
+  res.status(200).json(result)
 })
 
 export default blogsRouter
