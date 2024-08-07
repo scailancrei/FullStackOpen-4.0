@@ -3,7 +3,8 @@ import express from "express"
 import "express-async-errors"
 import cors from "cors"
 const app = express()
-import blogsRouter from "./controllers/controllers.js"
+import blogsRouter from "./controllers/blogsControllers.js"
+import usersRouter from "./controllers/usersControllers.js"
 import middleware from "./utils/middleware.js"
 import logger from "./utils/logger.js"
 import mongoose from "mongoose"
@@ -13,7 +14,7 @@ logger.info("connecting to mongoDB")
 
 mongoose
   .connect(config.MONGODB_URI)
-  .then((e) => {
+  .then(() => {
     logger.info(
       `connected to MongoDB, data base: ${mongoose.connection.db.databaseName}`
     )
@@ -26,6 +27,7 @@ app.use(express.static("dist"))
 app.use(express.json())
 app.use(middleware.requestLogger)
 
+app.use("/api/users", usersRouter)
 app.use("/api/blogs", blogsRouter)
 
 app.use(middleware.unknownEndpoint)
