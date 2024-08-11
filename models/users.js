@@ -2,12 +2,23 @@ import mongoose from "mongoose"
 
 const userSchema = new mongoose.Schema({
   name: String,
-  passwordHash: String,
+  passwordHash: {
+    type: String,
+    required: [true, "password is required"],
+    minLength: 3,
+  },
   username: {
     type: String,
     unique: true,
-    required: true,
+    minLength: 3,
+    required: [true, "username is required"],
   },
+  blogs: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Blog",
+    },
+  ],
 })
 
 userSchema.set("toJSON", {
@@ -21,8 +32,8 @@ userSchema.set("toJSON", {
 })
 userSchema.set("toObject", {
   transform: (document, returnedObject) => {
-    delete returnedObject.username
-    delete returnedObject.name
+    returnedObject.id = returnedObject._id.toString()
+
     delete returnedObject.passwordHash
     delete returnedObject._id
     delete returnedObject.__v

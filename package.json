@@ -27,6 +27,7 @@
     "express": "^4.19.2",
     "express-async-errors": "^3.1.1",
     "fullstackreactopen-4.0": "file:",
+    "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.5.2",
     "morgan": "^1.10.0",
     "nodemon": "^3.1.4"
