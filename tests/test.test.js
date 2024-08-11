@@ -1,7 +1,7 @@
 import { test, describe } from "node:test"
 import assert from "node:assert"
 import listHelper from "../utils/list_helpers.js"
-import blogs from "./test_helper.js"
+import { blogs } from "./test_helper.js"
 
 describe("Testing blogs", () => {
   test("Result of total likes", () => {
