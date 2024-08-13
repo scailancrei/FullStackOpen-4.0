@@ -5,9 +5,9 @@ import User from "../models/users.js"
 const userRouter = express.Router()
 
 userRouter.get("/", async (req, res) => {
-  const users = await User.find({}).populate("blogs", { user: 0, likes: 0 })
-  console.log(users)
-  if (users.length == 0) {
+  const users = await User.find({})
+
+  if (users.length === 0) {
     res.status(404).json({ message: "no data found" })
   }
   res.json(users.map((e) => e.toJSON()))

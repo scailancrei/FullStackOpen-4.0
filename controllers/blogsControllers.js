@@ -6,7 +6,7 @@ import middleware from "../utils/middleware.js"
 const blogsRouter = express.Router()
 
 blogsRouter.get("/", async (request, response) => {
-  const data = await Blog.find({}).populate("user")
+  const data = await Blog.find({}).populate("user", { blogs: 0 })
 
   if (data.length > 0) {
     response.status(200).json(data)
@@ -47,25 +47,26 @@ blogsRouter.post("/", middleware.getUserExtractor, async (req, res) => {
     _id: body._id,
     title: body.title,
     author: body.author,
-    url: body.author,
+    url: body.url,
     likes: body.likes ? body.likes : 0,
     user: userBlog.id,
   })
 
   const blogSaved = await blog.save()
 
-  userBlog.blogs = userBlog.blogs.concat(body._id)
+  userBlog.blogs = userBlog.blogs.concat(blogSaved.id)
   await userBlog.save()
 
   res.status(201).json(blogSaved)
 })
 
-blogsRouter.delete("/", middleware.getUserExtractor, async (req, res) => {
-  const { id } = req.body
-  const user = req.user
+blogsRouter.delete("/:id", middleware.getUserExtractor, async (req, res) => {
+  const id = req.params.id
+
+  let user = req.user
 
   if (!user || !user.id) {
-    res.status(401).send("Token invalid or missing")
+    res.status(403).send("Token invalid or missing")
   }
 
   const blog = await Blog.findById(id)
@@ -78,10 +79,10 @@ blogsRouter.delete("/", middleware.getUserExtractor, async (req, res) => {
   }
 
   if (blog.user.toString() === user.id) {
-    await Blog.findByIdAndDelete(id)
+    await Blog.findByIdAndDelete(blog.id)
     res.status(204).send("Element deleted")
   } else {
-    let usernameBlog = await User.findOne({ blogs: id })
+    let usernameBlog = await User.findOne({ blogs: blog.id })
     res
       .status(401)
       .json({ error: `Only ${usernameBlog.username} can delete this blog ` })
