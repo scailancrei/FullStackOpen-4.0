@@ -15,6 +15,20 @@ blogsRouter.get("/", async (request, response) => {
   }
 })
 
+blogsRouter.get("/user", middleware.getUserExtractor, async (req, res) => {
+  let user = req.user
+
+  const blogs = await Blog.find({ user: user.id }).populate("user", {
+    blogs: 0,
+  })
+  if (blogs) {
+    console.log(blogs)
+    res.status(200).json(blogs)
+  } else {
+    res.status(404).json({ error: "No blogs found" })
+  }
+})
+
 blogsRouter.get("/:id", async (req, res) => {
   const id = req.params.id
   const blog = await Blog.findById(id)
